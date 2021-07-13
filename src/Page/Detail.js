@@ -15,7 +15,7 @@ class Detail extends Component {
     endDate: "",
     modelName: "",
     modelDetail: {},
-    station: "SMT1",
+    station: "AOI2",
     trendData: [],
     errorAnalysis: [],
     sortFailure: [],
@@ -25,13 +25,8 @@ class Detail extends Component {
 
   componentDidMount() {
     console.log(this.props.location.state);
-    const {
-      startDate,
-      endDate,
-      modelName,
-      modelDetail,
-      errorAnalysis,
-    } = this.props.location.state;
+    const { startDate, endDate, modelName, modelDetail, errorAnalysis } =
+      this.props.location.state;
     this.setState({
       tableData: this.props.location.state,
       startDate,
@@ -287,14 +282,10 @@ class Detail extends Component {
                 onBlur={(e) => this.udpateStation(e.target.value)}
               >
                 {[
-                  "SMT1",
-                  "SMT2",
-                  "ASM",
+                  "AOI2",
+                  "AOI4",
+                  "X-Ray",
                   "ICT",
-                  "CPLD",
-                  "VOL",
-                  "FCT",
-                  "DAOI",
                 ].map((station) => (
                   <option value={station} key={station}>
                     {station}

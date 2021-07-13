@@ -4,7 +4,7 @@ import DropzoneForFailure from "./DropzoneForFailureAnalysis";
 
 export default function DragCard({ title, fileType, callback, setFlag }) {
   return (
-    <Card style={{ width: "18rem", height: "300px" }}>
+    <Card style={{ width: "18rem", height: "300px", marginRight: "200px" }}>
       <Card.Body>
         <Card.Title className="font-weight-bold">{title}</Card.Title>
 

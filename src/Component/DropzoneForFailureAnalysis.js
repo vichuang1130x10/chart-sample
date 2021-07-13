@@ -17,70 +17,64 @@ export default function Dropzone({ callback, fileType, setFlag }) {
           const data = e.target.result;
 
           const retJson = readxlsx(data);
-          console.log(retJson);
+// Date: Sun Jan 31 2021 00:00:00 GMT+0800 (Taipei Standard Time)
+// __proto__: Object
+// Fail: 4
+// Line: "PD2-T3"
+// MO: 801011
+// Model: "M2000"
+// Pass: 196
+// Total: 200
+// Type: "AOI2"
+// Vendor: "Foxconn"
+// Version: "A"
           const key = Object.keys(retJson);
 
           switch (fileType) {
             case "YieldRate":
-              if (
-                key[0].split(" ")[0] !== "YieldRate" ||
-                retJson[key] === null
-              ) {
-                alert(
-                  "The file you dropped is wrong, it should be yeild rate excel file"
-                );
-                setFlag(false);
-              } else {
-                const updatedJson = { YieldRate: retJson[key] };
+              // if (
+              //   key[0].split(" ")[0] !== "YieldRate" ||
+              //   retJson[key] === null
+              // ) {
+              //   alert(
+              //     "The file you dropped is wrong, it should be yeild rate excel file"
+              //   );
+              //   setFlag(false);
+              // } else {
+              const updatedJson = { YieldRate: retJson[key] };
 
-                // here to the vendor data and update the type content by each different vendor
-                // updateJson.YieldRate.forEach(obj =>
-                // switch (obj.vendor){
-                //  case 'USI':
-                //  case 'OSE':
-                //}
-                //
-                // )
+              // here to the vendor data and update the type content by each different vendor
+              // updateJson.YieldRate.forEach(obj =>
+              // switch (obj.vendor){
+              //  case 'USI':
+              //  case 'OSE':
+              //}
+              //
+              // )
 
-                const n = parseForYieldRate(updatedJson);
-                console.log(n);
+              const n = parseForYieldRate(updatedJson);
+              console.log(n);
 
-                callback(n);
-                setFlag(true);
-              }
-              break;
-            case "ErrorList":
-              if (
-                key[0].split(" ")[0] !== "ErrorList" ||
-                retJson[key] === null
-              ) {
-                alert(
-                  "The file you dropped is wrong, it should be error list excel file"
-                );
-                setFlag(false);
-              } else {
-                const updatedJson = { ErrorList: retJson[key] };
-                // console.log(updatedJson);
-                callback(updatedJson);
-                setFlag(true);
-              }
+              callback(n);
+              setFlag(true);
+              // }
               break;
 
             case "RepairList":
-              if (
-                key[0].split(" ")[0] !== "RepairList" ||
-                retJson[key] === null
-              ) {
-                alert(
-                  "The file you dropped is wrong, it should be repair list excel file"
-                );
-                setFlag(false);
-              } else {
-                const updatedJson = { RepairList: retJson[key] };
-                //        console.log(updatedJson);
-                callback(updatedJson);
-                setFlag(true);
-              }
+              // if (
+              //   key[0].split(" ")[0] !== "RepairList" ||
+              //   retJson[key] === null
+              // ) {
+              //   alert(
+              //     "The file you dropped is wrong, it should be repair list excel file"
+              //   );
+              //   setFlag(false);
+              // } else {
+              const updatedJsonRepair = { RepairList: retJson[key] };
+              console.log(updatedJsonRepair);
+              callback(updatedJsonRepair);
+              setFlag(true);
+              // }
               break;
 
             default:

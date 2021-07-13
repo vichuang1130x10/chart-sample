@@ -7,36 +7,53 @@ import { FaHourglass } from "react-icons/fa";
 import { parsingErrorList } from "../Utils/CmShopFloorParsing/RawDataParsing";
 import { mappingErrorListAndRepairList } from "../Utils/MappingErrorListAndRepariList";
 import Header from "../Component/Header";
+import styled from "styled-components";
+import { outputDate } from "../Utils/helperFunction";
+
+const ContentRow = styled.div`
+  width: 1200px;
+  display: flex;
+  margin: auto;
+  margin-top: 40px;
+  justify-content: center;
+  align-items: center;
+`;
 
 export default function FileHandling() {
   const [yieldRate, setYieldRate] = useState({});
-  const [errorList, setErrorList] = useState({});
   const [repairList, setRepairList] = useState({});
   const [yieldRateFlag, setYieldRateFlag] = useState(false);
-  const [errorListFlag, setErrorListFlag] = useState(false);
   const [repairListFlag, setRepairListFlag] = useState(false);
 
   const receivedYieldRate = (obj) => {
     setYieldRate(obj);
   };
 
-  const receivedErrorList = (obj) => {
-    setErrorList(obj);
-  };
-
   const receivedRepairList = (obj) => setRepairList(obj);
 
   const transferData = (e) => {
-    mappingErrorListAndRepairList(errorList, repairList);
-    const udpatedErrorList = errorList.ErrorList.map((ele) => {
-      if (ele["Reason"] === null || ele["Reason"] === undefined) {
-        ele["Reason"] = "待修";
-      }
-      return ele;
-    });
-    const parsedErrorList = parsingErrorList(udpatedErrorList);
-    navigate(`/dashboard`, {
-      state: { YieldRate: yieldRate, ErrorAnalysis: parsedErrorList },
+    // mappingErrorListAndRepairList(errorList, repairList);
+    // const udpatedErrorList = errorList.ErrorList.map((ele) => {
+    //   if (ele["Reason"] === null || ele["Reason"] === undefined) {
+    //     ele["Reason"] = "待修";
+    //   }
+    //   return ele;
+    // });
+    const parsedErrorList = parsingErrorList(repairList.RepairList);
+    console.log(parsedErrorList);
+
+    const modelName = "IPU-M MB MK2";
+    const modelDetail =
+      yieldRate.models.filter((model) => model.model === modelName)[0] || {};
+
+    navigate(`/detail`, {
+      state: {
+        modelName,
+        modelDetail,
+        startDate: outputDate(yieldRate.startDate),
+        endDate: outputDate(yieldRate.endDate),
+        errorAnalysis: parsedErrorList[modelName],
+      },
     });
   };
 
@@ -44,40 +61,26 @@ export default function FileHandling() {
     <div>
       <Header />
       <Container>
-        <h6 className="text-left m-auot mt-5">
-          Pick The Files For Generating The Quality Data
-        </h6>
-        <Row>
-          <Col>
-            <DragCard
-              title="Yield Rate"
-              fileType="YieldRate"
-              callback={(obj) => receivedYieldRate(obj)}
-              setFlag={(bool) => setYieldRateFlag(bool)}
-            />
-          </Col>
-          <Col>
-            <DragCard
-              title="Error List"
-              fileType="ErrorList"
-              callback={(obj) => receivedErrorList(obj)}
-              setFlag={(bool) => setErrorListFlag(bool)}
-            />
-          </Col>
-          <Col>
-            <DragCard
-              title="Repair List"
-              fileType="RepairList"
-              callback={(obj) => receivedRepairList(obj)}
-              setFlag={(bool) => setRepairListFlag(bool)}
-            />
-          </Col>
-        </Row>
+        <ContentRow>
+          <DragCard
+            title="Yield Rate"
+            fileType="YieldRate"
+            callback={(obj) => receivedYieldRate(obj)}
+            setFlag={(bool) => setYieldRateFlag(bool)}
+          />
+
+          <DragCard
+            title="Failure Analysis List"
+            fileType="RepairList"
+            callback={(obj) => receivedRepairList(obj)}
+            setFlag={(bool) => setRepairListFlag(bool)}
+          />
+        </ContentRow>
         <div style={{ height: "50px" }} />
         <Row className="d-flex justify-content-center">
           <Button
-            disabled={!yieldRateFlag || !errorListFlag || !repairListFlag}
-            style={{ width: "50%" }}
+            disabled={!yieldRateFlag || !repairListFlag}
+            style={{ width: "240px" }}
             onClick={transferData}
           >
             <span className="m-1">

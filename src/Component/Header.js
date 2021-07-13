@@ -30,11 +30,9 @@ export default function Header(props) {
   return (
     <Nav>
       <NavHeader>
-        <NavTitle>
-          <h3>SUPERMICRO ME</h3>
-        </NavTitle>
+        <NavTitle></NavTitle>
         <NavSubTitle>
-          <h2>Quality Improvement Tracking Tool For EMS</h2>
+          <h1>Quality Improvement Tracking Tool</h1>
         </NavSubTitle>
       </NavHeader>
     </Nav>
