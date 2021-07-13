@@ -62,11 +62,13 @@ class Detail extends Component {
       return [];
     }
     const allDefects = {};
-    // const { station } = this.state;
-
+  
+    console.log("getSevenDayBoundary(this.state.endDate)",getSevenDayBoundary(Date.now()))
     const inTheSevenDaysData = e[str].ErorrDescriptions.filter(
-      (obj) => new Date(obj.date) > getSevenDayBoundary(this.state.endDate)
+      (obj) => new Date(obj.date) > getSevenDayBoundary(new Date())
     );
+
+    console.log("inTheSevenDaysData",inTheSevenDaysData)
 
     inTheSevenDaysData.forEach((defect) => {
       if (
@@ -205,7 +207,7 @@ class Detail extends Component {
     const result = [];
     const rootCause = {};
     const failures = e[str].ErorrDescriptions.filter(
-      (obj) => new Date(obj.date) > getSevenDayBoundary(this.state.endDate)
+      (obj) => new Date(obj.date) > getSevenDayBoundary(new Date())
     );
 
     const f = failures.filter((failure) => failure.description === failureName);
