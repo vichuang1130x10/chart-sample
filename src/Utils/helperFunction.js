@@ -26,7 +26,7 @@ export function getDateOfISOWeek(w, y) {
 }
 
 export function getSevenDayBoundary(d) {
-  return new Date(new Date(d).valueOf() + -14 * 24 * 3600 * 1000);
+  return new Date(new Date(d).valueOf() + -90 * 24 * 3600 * 1000);
 }
 
 export function milToMiliMeter(mil) {

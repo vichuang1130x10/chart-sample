@@ -5,7 +5,7 @@ const height = 400;
 const margin = { top: 20, right: 5, bottom: 50, left: 35 };
 
 const sortMo = (a, b) => {
-  if (a.Start_date > b.Start_date) {
+  if (a > b) {
     return 1;
   } else {
     return -1;
@@ -22,17 +22,16 @@ class BarChart extends Component {
   yAxisVolume = React.createRef();
 
   static getDerivedStateFromProps(nextProps, prevState) {
-    const { data } = nextProps;
+    const { data, station } = nextProps;
     if (!data) return {};
 
-    const updateData = data
-      .filter((d) => d.Pass > 10 && d.Total > 10 && d.MO[0] !== "9")
-      .sort(sortMo)
-      .map((d) => ({
-        mo: d.MO,
-        total: d.Total,
-        yield: parseFloat(((d.Pass / d.Total) * 100).toFixed(1)),
-      }));
+    console.log("data", data);
+
+    const updateData = data.sort(sortMo).map((d) => ({
+      mo: d.MO,
+      total: d.Total,
+      yield: parseFloat(((d.Pass / d.Total) * 100).toFixed(1)),
+    }));
 
     const trimData =
       updateData.length > 20
@@ -90,8 +89,33 @@ class BarChart extends Component {
       };
     });
 
+    let target;
+    switch (station) {
+      case "AOI2":
+      case "AOI4":
+        target = 92;
+        break;
+      case "X-Ray":
+      case "ICT":
+        target = 95;
+        break;
+      default:
+        target = 98;
+    }
+
+    const passedLineHight = yScale(target);
+
     console.log(bars);
-    return { bars, xScale, yScale, yScaleRight, line, labels, textLabels };
+    return {
+      bars,
+      xScale,
+      yScale,
+      yScaleRight,
+      line,
+      labels,
+      textLabels,
+      passedLineHight,
+    };
   }
 
   componentDidMount() {
@@ -156,6 +180,19 @@ class BarChart extends Component {
               {d.text}
             </text>
           ))}
+        </g>
+
+        {/*  yield line */}
+        <g>
+          <line
+            x1={margin.right}
+            y1={this.state.passedLineHight}
+            x2={width - margin.left}
+            y2={this.state.passedLineHight}
+            stroke={"#1029dd"}
+            strokeWidth={1}
+            strokeDasharray={(5, 5)}
+          />
         </g>
 
         <g

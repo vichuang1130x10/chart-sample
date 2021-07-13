@@ -266,7 +266,13 @@ const getType = (failStation) => {
       return "";
   }
 };
-
+const replaceDashToUnderline = (string) => {
+  if (string) {
+    return string.replaceAll("-", "_");
+  } else {
+    return "";
+  }
+};
 //const type = getType(obj["FAIL_STATION"]);
 
 // parsing errorlist json to specfic format for each station failure symptom
@@ -293,7 +299,7 @@ export function parsingErrorList(errorList) {
             reasons: [
               {
                 reason: obj["ROOT_CAUSE"],
-                item: obj["LOCATION"],
+                item: replaceDashToUnderline(obj["LOCATION"]),
                 date: obj["REPAIR_TIME"],
               },
             ],
@@ -313,7 +319,7 @@ export function parsingErrorList(errorList) {
           reasons: [
             {
               reason: obj["ROOT_CAUSE"],
-              item: obj["LOCATION"],
+              item: replaceDashToUnderline(obj["LOCATION"]),
               date: obj["REPAIR_TIME"],
             },
           ],

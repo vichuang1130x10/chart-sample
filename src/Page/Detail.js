@@ -24,7 +24,7 @@ class Detail extends Component {
   };
 
   componentDidMount() {
-    console.log(this.props.location.state);
+    console.log("passed data", this.props.location.state);
     const { startDate, endDate, modelName, modelDetail, errorAnalysis } =
       this.props.location.state;
     this.setState({
@@ -163,7 +163,7 @@ class Detail extends Component {
 
     const f = failures.filter((failure) => failure.description === failureName);
     f.forEach((reason) => {
-      result.push(`${reason.reasons[0].reason}/${reason.reasons[0].item}`);
+      result.push(`${reason.reasons[0].item}`);
     });
 
     console.log(result);
@@ -210,7 +210,7 @@ class Detail extends Component {
 
     const f = failures.filter((failure) => failure.description === failureName);
     f.forEach((reason) => {
-      result.push(`${reason.reasons[0].reason}/${reason.reasons[0].item}`);
+      result.push(`${reason.reasons[0].item}`);
     });
 
     console.log(result);
@@ -281,19 +281,14 @@ class Detail extends Component {
                 onChange={(e) => this.udpateStation(e.target.value)}
                 onBlur={(e) => this.udpateStation(e.target.value)}
               >
-                {[
-                  "AOI2",
-                  "AOI4",
-                  "X-Ray",
-                  "ICT",
-                ].map((station) => (
+                {["AOI2", "AOI4", "X-Ray", "ICT"].map((station) => (
                   <option value={station} key={station}>
                     {station}
                   </option>
                 ))}
               </select>
             </label>
-            <BarChart data={trendData} />
+            <BarChart data={trendData} station={station} />
           </Row>
           <Row style={{ margin: "20px" }}>
             <Button onClick={() => this.gotoDefectMapping()}>
@@ -304,11 +299,11 @@ class Detail extends Component {
           <h4 className="section-style">Defect Symptom Analysis:</h4>
           <Row>
             <Col>
-              <h5 className="subtitle-text">{`${startDate}~${endDate}`}</h5>
+              <h5 className="subtitle-text">Total :</h5>
               <Plato data={sortFailure} />
             </Col>
             <Col>
-              <h5 className="subtitle-text">LAST 14 DAYS DEFECT SYMPTOM</h5>
+              <h5 className="subtitle-text">LAST 90 DAYS DEFECT SYMPTOM</h5>
               <Plato data={sevenDaysFailure} />
             </Col>
           </Row>
@@ -324,15 +319,15 @@ class Detail extends Component {
               </div>
             </Col>
           </Row>
-
-          <h4 className="section-style">TOP 3 Root Cause:</h4>
+          <hr />
+          <h4 className="section-style-top3">TOP 5 Root Cause:</h4>
 
           <Row>
             <Col>
-              <h5 className="subtitle-text">{`${startDate}~${endDate}`}</h5>
+              <h5 className="subtitle-text">Total :</h5>
               {sortFailure.length ? (
                 <div>
-                  <h6>{sortFailure[0].defectName}</h6>
+                  <h4>Defect Symptom: {sortFailure[0].defectName}</h4>
                   <Plato
                     data={this.parsingRootCause(
                       sortFailure[0].defectName,
@@ -344,10 +339,10 @@ class Detail extends Component {
               ) : null}
             </Col>
             <Col>
-              <h5 className="subtitle-text">LAST 14 DAYS REPAIR RECORD</h5>
+              <h5 className="subtitle-text">LAST 90 DAYS REPAIR RECORD</h5>
               {sevenDaysFailure.length ? (
                 <div>
-                  <h6>{sevenDaysFailure[0].defectName}</h6>
+                  <h4>Defect Symptom: {sevenDaysFailure[0].defectName}</h4>
                   <Plato
                     data={this.parsingSevenDayRootCause(
                       sevenDaysFailure[0].defectName,
@@ -359,12 +354,11 @@ class Detail extends Component {
               ) : null}
             </Col>
           </Row>
-
+          <hr />
           <Row>
             <Col>
               {sortFailure.length ? (
                 <div>
-                  <h6>{sortFailure[0].defectName}</h6>
                   <DefectTable
                     sortFailure={this.parsingRootCause(
                       sortFailure[0].defectName,
@@ -378,7 +372,6 @@ class Detail extends Component {
             <Col>
               {sevenDaysFailure.length ? (
                 <div>
-                  <h6>{sevenDaysFailure[0].defectName}</h6>
                   <DefectTable
                     sortFailure={this.parsingSevenDayRootCause(
                       sevenDaysFailure[0].defectName,
@@ -390,12 +383,12 @@ class Detail extends Component {
               ) : null}
             </Col>
           </Row>
-
+          <hr />
           <Row>
             <Col>
               {sortFailure[1] ? (
                 <div>
-                  <h6>{sortFailure[1].defectName}</h6>
+                  <h4>Defect Symptom: {sortFailure[1].defectName}</h4>
                   <Plato
                     data={this.parsingRootCause(
                       sortFailure[1].defectName,
@@ -409,7 +402,7 @@ class Detail extends Component {
             <Col>
               {sevenDaysFailure[1] ? (
                 <div>
-                  <h6>{sevenDaysFailure[1].defectName}</h6>
+                  <h4>Defect Symptom: {sevenDaysFailure[1].defectName}</h4>
                   <Plato
                     data={this.parsingSevenDayRootCause(
                       sevenDaysFailure[1].defectName,
@@ -421,12 +414,11 @@ class Detail extends Component {
               ) : null}
             </Col>
           </Row>
-
+          <hr />
           <Row>
             <Col>
               {sortFailure[1] ? (
                 <div>
-                  <h6>{sortFailure[1].defectName}</h6>
                   <DefectTable
                     sortFailure={this.parsingRootCause(
                       sortFailure[1].defectName,
@@ -440,7 +432,6 @@ class Detail extends Component {
             <Col>
               {sevenDaysFailure[1] ? (
                 <div>
-                  <h6>{sevenDaysFailure[1].defectName}</h6>
                   <DefectTable
                     sortFailure={this.parsingSevenDayRootCause(
                       sevenDaysFailure[1].defectName,
@@ -452,12 +443,12 @@ class Detail extends Component {
               ) : null}
             </Col>
           </Row>
-
+          <hr />
           <Row>
             <Col>
               {sortFailure[2] ? (
                 <div>
-                  <h6>{sortFailure[2].defectName}</h6>
+                  <h4>Defect Symptom: {sortFailure[2].defectName}</h4>
                   <Plato
                     data={this.parsingRootCause(
                       sortFailure[2].defectName,
@@ -471,7 +462,7 @@ class Detail extends Component {
             <Col>
               {sevenDaysFailure[2] ? (
                 <div>
-                  <h6>{sevenDaysFailure[2].defectName}</h6>
+                  <h4>Defect Symptom: {sevenDaysFailure[2].defectName}</h4>
                   <Plato
                     data={this.parsingSevenDayRootCause(
                       sevenDaysFailure[2].defectName,
@@ -488,7 +479,6 @@ class Detail extends Component {
             <Col>
               {sortFailure[2] ? (
                 <div>
-                  <h6>{sortFailure[2].defectName}</h6>
                   <DefectTable
                     sortFailure={this.parsingRootCause(
                       sortFailure[2].defectName,
@@ -502,10 +492,129 @@ class Detail extends Component {
             <Col>
               {sevenDaysFailure[2] ? (
                 <div>
-                  <h6>{sevenDaysFailure[2].defectName}</h6>
                   <DefectTable
                     sortFailure={this.parsingSevenDayRootCause(
                       sevenDaysFailure[2].defectName,
+                      errorAnalysis,
+                      station
+                    )}
+                  />
+                </div>
+              ) : null}
+            </Col>
+          </Row>
+          <hr />
+          <Row>
+            <Col>
+              {sortFailure[3] ? (
+                <div>
+                  <h4>Defect Symptom: {sortFailure[3].defectName}</h4>
+                  <Plato
+                    data={this.parsingRootCause(
+                      sortFailure[3].defectName,
+                      errorAnalysis,
+                      station
+                    )}
+                  />
+                </div>
+              ) : null}
+            </Col>
+            <Col>
+              {sevenDaysFailure[3] ? (
+                <div>
+                  <h4>Defect Symptom: {sevenDaysFailure[3].defectName}</h4>
+                  <Plato
+                    data={this.parsingSevenDayRootCause(
+                      sevenDaysFailure[3].defectName,
+                      errorAnalysis,
+                      station
+                    )}
+                  />
+                </div>
+              ) : null}
+            </Col>
+          </Row>
+
+          <Row>
+            <Col>
+              {sortFailure[3] ? (
+                <div>
+                  <DefectTable
+                    sortFailure={this.parsingRootCause(
+                      sortFailure[3].defectName,
+                      errorAnalysis,
+                      station
+                    )}
+                  />
+                </div>
+              ) : null}
+            </Col>
+            <Col>
+              {sevenDaysFailure[3] ? (
+                <div>
+                  <DefectTable
+                    sortFailure={this.parsingSevenDayRootCause(
+                      sevenDaysFailure[3].defectName,
+                      errorAnalysis,
+                      station
+                    )}
+                  />
+                </div>
+              ) : null}
+            </Col>
+          </Row>
+          <hr />
+          <Row>
+            <Col>
+              {sortFailure[4] ? (
+                <div>
+                  <h4>Defect Symptom: {sortFailure[4].defectName}</h4>
+                  <Plato
+                    data={this.parsingRootCause(
+                      sortFailure[4].defectName,
+                      errorAnalysis,
+                      station
+                    )}
+                  />
+                </div>
+              ) : null}
+            </Col>
+            <Col>
+              {sevenDaysFailure[4] ? (
+                <div>
+                  <h4>Defect Symptom: {sevenDaysFailure[4].defectName}</h4>
+                  <Plato
+                    data={this.parsingSevenDayRootCause(
+                      sevenDaysFailure[4].defectName,
+                      errorAnalysis,
+                      station
+                    )}
+                  />
+                </div>
+              ) : null}
+            </Col>
+          </Row>
+
+          <Row>
+            <Col>
+              {sortFailure[4] ? (
+                <div>
+                  <DefectTable
+                    sortFailure={this.parsingRootCause(
+                      sortFailure[4].defectName,
+                      errorAnalysis,
+                      station
+                    )}
+                  />
+                </div>
+              ) : null}
+            </Col>
+            <Col>
+              {sevenDaysFailure[4] ? (
+                <div>
+                  <DefectTable
+                    sortFailure={this.parsingSevenDayRootCause(
+                      sevenDaysFailure[4].defectName,
                       errorAnalysis,
                       station
                     )}
