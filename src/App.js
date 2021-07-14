@@ -18,7 +18,7 @@ function App() {
         <Detail path="/detail" />
         <Dashboard path="/dashboard" />
         <DefectMapping path="/defect-mapping" />
-        {/* <GenerateMapping path="/generat-mapping" /> */}
+        <GenerateMapping path="/generat-mapping" />
       </Router>
     </div>
   );

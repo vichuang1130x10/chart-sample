@@ -277,8 +277,14 @@ const replaceDashToUnderline = (string) => {
 
 // parsing errorlist json to specfic format for each station failure symptom
 export function parsingErrorList(errorList) {
-  let n = {};
+  let n = { batchs: [] };
+
   errorList.forEach((obj) => {
+    const item = replaceDashToUnderline(obj["LOCATION"]);
+    const batchNo = obj["FAIL_SN"].split("-")[0] || "";
+
+    if (!n.batchs.includes(batchNo)) n.batchs.push(batchNo);
+
     obj["Type"] = getType(obj["FAIL_STATION"]);
     if (n[obj["MODEL_NAME"]] === undefined || n[obj["MODEL_NAME"]] === null) {
       n[obj["MODEL_NAME"]] = {};
@@ -299,7 +305,8 @@ export function parsingErrorList(errorList) {
             reasons: [
               {
                 reason: obj["ROOT_CAUSE"],
-                item: replaceDashToUnderline(obj["LOCATION"]),
+                item,
+                batchNo,
                 date: obj["REPAIR_TIME"],
               },
             ],
@@ -319,7 +326,8 @@ export function parsingErrorList(errorList) {
           reasons: [
             {
               reason: obj["ROOT_CAUSE"],
-              item: replaceDashToUnderline(obj["LOCATION"]),
+              item,
+              batchNo,
               date: obj["REPAIR_TIME"],
             },
           ],

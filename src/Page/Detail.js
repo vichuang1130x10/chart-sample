@@ -62,13 +62,16 @@ class Detail extends Component {
       return [];
     }
     const allDefects = {};
-  
-    console.log("getSevenDayBoundary(this.state.endDate)",getSevenDayBoundary(Date.now()))
+
+    console.log(
+      "getSevenDayBoundary(this.state.endDate)",
+      getSevenDayBoundary(Date.now())
+    );
     const inTheSevenDaysData = e[str].ErorrDescriptions.filter(
       (obj) => new Date(obj.date) > getSevenDayBoundary(new Date())
     );
 
-    console.log("inTheSevenDaysData",inTheSevenDaysData)
+    console.log("inTheSevenDaysData", inTheSevenDaysData);
 
     inTheSevenDaysData.forEach((defect) => {
       if (
@@ -251,9 +254,9 @@ class Detail extends Component {
   };
 
   gotoDefectMapping = () => {
-    const { modelName, startDate, endDate, errorAnalysis } = this.state;
-    navigate(`/defect-mapping`, {
-      state: { modelName, startDate, endDate, errorAnalysis },
+    const {  errorAnalysis } = this.state;
+    navigate(`/generat-mapping`, {
+      state: { errorAnalysis },
     });
   };
 
