@@ -7,7 +7,7 @@ import PartData from "../board-data/PartData.json";
 const width = 900;
 const height = 900;
 
-const stations = ["AOI2", "AOI4", "X-Ray", "ICT"];
+const STATIONS = ["AOI2", "AOI4", "X-Ray", "ICT"];
 
 const MainContainer = styled.div`
   width: 1400px;
@@ -40,6 +40,12 @@ const InputField = styled.div`
   align-items: center;
 `;
 
+const SelectContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+`;
+
 const calculateX = (designator, data) => {
   if (designator.O === "0" || designator.O === "180") {
     return designator["X-axis"] - data.width / 2;
@@ -67,49 +73,24 @@ class App extends Component {
     drawingDataBot: [],
     labelDataBot: [],
     errorAnalysis: [],
+    batchs: [],
+    station: "",
   };
 
   Viewer = React.createRef();
   ViewerB = React.createRef();
 
-  _zoomOnViewerCenter = () => this.Viewer.current.zoomOnViewerCenter(1.1);
-  _fitSelection = () => this.Viewer.current.fitSelection(40, 40, 200, 200);
-  _fitToViewer = () => this.Viewer.current.fitToViewer();
-
-  _zoomOnViewerCenterB = () => this.ViewerB.current.zoomOnViewerCenter(1.1);
-  _fitSelectionB = () => this.ViewerB.current.fitSelection(40, 40, 200, 200);
-  _fitToViewerB = () => this.ViewerB.current.fitToViewer();
-
   componentDidMount() {
     console.log("passed data", this.props.location.state);
-    const { errorAnalysis } = this.props.location.state;
+    const { errorAnalysis, batchs } = this.props.location.state;
     this.drawSvg();
     this.Viewer.current.fitToViewer();
     this.ViewerB.current.fitToViewer();
     this.setState({
       errorAnalysis,
+      batchs,
     });
   }
-
-  // componentDidMount() {
-  //   console.log("passed data", this.props.location.state);
-  //   const { startDate, endDate, modelName, modelDetail, errorAnalysis } =
-  //     this.props.location.state;
-  //   this.setState({
-  //     tableData: this.props.location.state,
-  //     startDate,
-  //     endDate,
-  //     modelName,
-  //     modelDetail,
-  //     trendData: modelDetail[this.state.station].mo,
-  //     errorAnalysis,
-  //     sortFailure: this.parsingToQty(errorAnalysis, this.state.station),
-  //     sevenDaysFailure: this.parsingToSevenDayQty(
-  //       errorAnalysis,
-  //       this.state.station
-  //     ),
-  //   });
-  // }
 
   drawSvg = () => {
     const { boardWidth, boardLength, boardData } = this.state;
@@ -178,8 +159,6 @@ class App extends Component {
         };
       });
 
-    console.log("composedBotSideData", composedBotSideData);
-
     const drawingData = composedTopSideData.map((d) => ({
       x: xScale(d.xAxis),
       y: yScale(d.yAxis),
@@ -219,8 +198,13 @@ class App extends Component {
     this.setState({ searchParam: e.target.value });
   };
 
+  setStation = (e) => {
+    this.setState({ station: e.target.value });
+  };
+
   render() {
-    const { drawingData, searchParam, drawingDataBot } = this.state;
+    const { drawingData, searchParam, drawingDataBot, batchs } = this.state;
+
     return (
       <div>
         <MainContainer>
@@ -232,17 +216,43 @@ class App extends Component {
               onChange={(e) => this.updateSearchParam(e)}
             />
           </InputField>
-          <hr />
+          <SelectContainer>
+            <label htmlFor="stations">
+              STATION
+              <select id="stations" onChange={(e) => this.setStation(e)}>
+                <option />
+                {STATIONS.map((station) => (
+                  <option value={station} key={station}>
+                    {station}
+                  </option>
+                ))}
+              </select>
+            </label>
 
-          <button className="btn" onClick={() => this._zoomOnViewerCenter()}>
-            Zoom on center
-          </button>
-          <button className="btn" onClick={() => this._fitSelection()}>
-            Zoom area 200x200
-          </button>
-          <button className="btn" onClick={() => this._fitToViewer()}>
-            Fit
-          </button>
+            <label htmlFor="batch">
+              BATCH
+              <select id="batch" onChange={(e) => this.setStation(e)}>
+                <option />
+                {batchs.map((batch) => (
+                  <option value={batch} key={batch}>
+                    {batch}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            <label htmlFor="rootCause">
+              ROOT CAUSE
+              <select id="rootCause" onChange={(e) => this.setStation(e)}>
+                <option />
+                {STATIONS.map((station) => (
+                  <option value={station} key={station}>
+                    {station}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </SelectContainer>
           <hr />
           <UncontrolledReactSVGPanZoom
             ref={this.Viewer}
@@ -280,18 +290,6 @@ class App extends Component {
               </g>
             </svg>
           </UncontrolledReactSVGPanZoom>
-
-          <hr />
-
-          <button className="btn" onClick={() => this._zoomOnViewerCenterB()}>
-            Zoom on center
-          </button>
-          <button className="btn" onClick={() => this._fitSelectionB()}>
-            Zoom area 200x200
-          </button>
-          <button className="btn" onClick={() => this._fitToViewerB()}>
-            Fit
-          </button>
           <hr />
           <UncontrolledReactSVGPanZoom
             ref={this.ViewerB}

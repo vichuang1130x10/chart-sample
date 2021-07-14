@@ -18,15 +18,21 @@ class Detail extends Component {
     station: "AOI2",
     trendData: [],
     errorAnalysis: [],
+    batchs: [],
     sortFailure: [],
     topThree: [],
     sevenDaysFailure: [],
   };
 
   componentDidMount() {
-    console.log("passed data", this.props.location.state);
-    const { startDate, endDate, modelName, modelDetail, errorAnalysis } =
-      this.props.location.state;
+    const {
+      startDate,
+      endDate,
+      modelName,
+      modelDetail,
+      errorAnalysis,
+      batchs,
+    } = this.props.location.state;
     this.setState({
       tableData: this.props.location.state,
       startDate,
@@ -35,6 +41,7 @@ class Detail extends Component {
       modelDetail,
       trendData: modelDetail[this.state.station].mo,
       errorAnalysis,
+      batchs,
       sortFailure: this.parsingToQty(errorAnalysis, this.state.station),
       sevenDaysFailure: this.parsingToSevenDayQty(
         errorAnalysis,
@@ -56,22 +63,14 @@ class Detail extends Component {
   };
 
   parsingToSevenDayQty = (e, str) => {
-    console.log("parsing");
-    console.log(e);
     if (e === undefined || e === null) {
       return [];
     }
     const allDefects = {};
 
-    console.log(
-      "getSevenDayBoundary(this.state.endDate)",
-      getSevenDayBoundary(Date.now())
-    );
     const inTheSevenDaysData = e[str].ErorrDescriptions.filter(
       (obj) => new Date(obj.date) > getSevenDayBoundary(new Date())
     );
-
-    console.log("inTheSevenDaysData", inTheSevenDaysData);
 
     inTheSevenDaysData.forEach((defect) => {
       if (
@@ -84,8 +83,6 @@ class Detail extends Component {
       }
     });
 
-    console.log("all defects", allDefects);
-
     let sortable = [];
     for (let defect in allDefects) {
       sortable.push([defect, allDefects[defect]]);
@@ -107,20 +104,15 @@ class Detail extends Component {
         accu: parseInt((accumulate / totalDefects) * 100),
       });
     });
-    // const arr = this.state.errorAnalysis[this.state.station].ErorrDescriptions;
-    // console.log(arr);
 
     return result;
   };
 
   parsingToQty = (e, str) => {
-    console.log("parsing");
-    console.log(e);
     if (e === undefined || e === null) {
       return [];
     }
     const allDefects = {};
-    // const { station } = this.state;
     e[str].ErorrDescriptions.forEach((defect) => {
       if (
         allDefects[defect.description] === null ||
@@ -132,8 +124,6 @@ class Detail extends Component {
       }
     });
 
-    console.log("all defects", allDefects);
-
     let sortable = [];
     for (let defect in allDefects) {
       sortable.push([defect, allDefects[defect]]);
@@ -155,8 +145,6 @@ class Detail extends Component {
         accu: parseInt((accumulate / totalDefects) * 100),
       });
     });
-    // const arr = this.state.errorAnalysis[this.state.station].ErorrDescriptions;
-    // console.log(arr);
 
     return result;
   };
@@ -170,8 +158,6 @@ class Detail extends Component {
     f.forEach((reason) => {
       result.push(`${reason.reasons[0].item}`);
     });
-
-    console.log(result);
 
     result.forEach((item) => {
       if (rootCause[item] === null || rootCause[item] === undefined) {
@@ -218,8 +204,6 @@ class Detail extends Component {
       result.push(`${reason.reasons[0].item}`);
     });
 
-    console.log(result);
-
     result.forEach((item) => {
       if (rootCause[item] === null || rootCause[item] === undefined) {
         rootCause[item] = 1;
@@ -254,9 +238,9 @@ class Detail extends Component {
   };
 
   gotoDefectMapping = () => {
-    const {  errorAnalysis } = this.state;
+    const { errorAnalysis, batchs } = this.state;
     navigate(`/generat-mapping`, {
-      state: { errorAnalysis },
+      state: { errorAnalysis, batchs },
     });
   };
 
@@ -264,7 +248,6 @@ class Detail extends Component {
     const {
       tableData,
       startDate,
-      endDate,
       station,
       trendData,
       errorAnalysis,

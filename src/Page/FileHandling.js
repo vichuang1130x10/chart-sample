@@ -53,6 +53,7 @@ export default function FileHandling() {
         startDate: outputDate(yieldRate.startDate),
         endDate: outputDate(yieldRate.endDate),
         errorAnalysis: parsedErrorList[modelName],
+        batchs: parsedErrorList.batchs,
       },
     });
   };

@@ -283,7 +283,9 @@ export function parsingErrorList(errorList) {
     const item = replaceDashToUnderline(obj["LOCATION"]);
     const batchNo = obj["FAIL_SN"].split("-")[0] || "";
 
-    if (!n.batchs.includes(batchNo)) n.batchs.push(batchNo);
+    if (obj["MODEL_NAME"] === "IPU-M MB MK2" && !n.batchs.includes(batchNo)) {
+      n.batchs.push(batchNo);
+    }
 
     obj["Type"] = getType(obj["FAIL_STATION"]);
     if (n[obj["MODEL_NAME"]] === undefined || n[obj["MODEL_NAME"]] === null) {
@@ -302,6 +304,7 @@ export function parsingErrorList(errorList) {
         n[obj["MODEL_NAME"]][obj.Type].ErorrDescriptions = [
           {
             description: obj["ROOT_CAUSE"],
+            batchNo,
             reasons: [
               {
                 reason: obj["ROOT_CAUSE"],
@@ -323,6 +326,7 @@ export function parsingErrorList(errorList) {
       ) {
         n[obj["MODEL_NAME"]][obj.Type].ErorrDescriptions.push({
           description: obj["ROOT_CAUSE"],
+          batchNo,
           reasons: [
             {
               reason: obj["ROOT_CAUSE"],
