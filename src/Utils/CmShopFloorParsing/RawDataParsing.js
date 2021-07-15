@@ -277,7 +277,7 @@ const replaceDashToUnderline = (string) => {
 
 // parsing errorlist json to specfic format for each station failure symptom
 export function parsingErrorList(errorList) {
-  let n = { batchs: [] };
+  let n = { batchs: ["ALL"] };
 
   errorList.forEach((obj) => {
     const item = replaceDashToUnderline(obj["LOCATION"]);

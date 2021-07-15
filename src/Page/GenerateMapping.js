@@ -4,8 +4,12 @@ import styled from "styled-components";
 import * as d3 from "d3";
 import BoardData from "../board-data/boarddatas.json";
 import PartData from "../board-data/PartData.json";
+
 const width = 900;
 const height = 900;
+
+const boardWidth = 374.48; // x , y move (5,5) distance
+const boardLength = 424;
 
 const STATIONS = ["AOI2", "AOI4", "X-Ray", "ICT"];
 
@@ -43,7 +47,28 @@ const InputField = styled.div`
 const SelectContainer = styled.div`
   display: flex;
   align-items: center;
+  align-content: center;
   justify-content: flex-start;
+`;
+
+const Button = styled.button`
+  cursor: pointer;
+  background: #6fa4e3;
+  font-size: 16px;
+  border-radius: 5px;
+  color: #fff;
+  margin-bottom: 30px;
+  padding: 0.4em 1em;
+  transition: 0.2s all ease-out;
+
+  &:hover {
+    background-color: white;
+    color: #6fa4e3;
+  }
+
+  &:disabled {
+    background: #ccc;
+  }
 `;
 
 const calculateX = (designator, data) => {
@@ -68,9 +93,17 @@ const parsingToQty = (resultForStationAndBatch, rc, batch) => {
 
   console.log("resultForStationAndBatch", resultForStationAndBatch);
 
-  const filterReuslt = resultForStationAndBatch
-    .filter((obj) => obj.batchNo === batch && obj.description === rc)
-    .map((obj) => obj.reasons[0].item);
+  let filterReuslt;
+
+  if (batch === "ALL") {
+    filterReuslt = resultForStationAndBatch
+      .filter((obj) => obj.description === rc)
+      .map((obj) => obj.reasons[0].item);
+  } else {
+    filterReuslt = resultForStationAndBatch
+      .filter((obj) => obj.batchNo === batch && obj.description === rc)
+      .map((obj) => obj.reasons[0].item);
+  }
 
   console.log("filterReuslt", filterReuslt);
 
@@ -82,12 +115,62 @@ const parsingToQty = (resultForStationAndBatch, rc, batch) => {
   return result;
 };
 
+const getBoardData = (bData, side) => {
+  return bData
+    .filter((item) => item.Side === side)
+    .map((designator) => {
+      const data = PartData.find(
+        (partData) => partData.shapeName === designator.CompType
+      );
+
+      const xAxis = calculateX(designator, data);
+      const yAxis = calculateY(designator, data);
+      let w, l;
+
+      if (designator.O === "0" || designator.O === "180") {
+        w = data.width;
+      } else {
+        w = data.length;
+      }
+      if (designator.O === "0" || designator.O === "180") {
+        l = data.length;
+      } else {
+        l = data.width;
+      }
+
+      return {
+        ref: designator.CompName,
+        xAxis,
+        yAxis,
+        w,
+        l,
+        qty: designator.qty || 0,
+      };
+    });
+};
+
+const defectTextColor = (qty) => {
+  if (qty === 1) {
+    return "black";
+  } else if (qty > 1 && qty <= 5) {
+    return "orange";
+  } else {
+    return "red";
+  }
+};
+
+const defectTextSize = (qty) => {
+  if (qty === 1) {
+    return "10px";
+  } else if (qty > 1 && qty <= 5) {
+    return "15px";
+  } else {
+    return "20px";
+  }
+};
+
 class App extends Component {
   state = {
-    boardData: BoardData,
-    partData: PartData,
-    boardWidth: 374.48, // x , y move (5,5) distance
-    boardLength: 424,
     drawingData: [],
     labelData: [],
     searchParam: "",
@@ -101,6 +184,10 @@ class App extends Component {
     rootCause: [],
     selectRootCause: "",
     selectResult: [],
+    defectDrawingTop: [],
+    defectDrawingBot: [],
+    defectLabelTop: [],
+    defectLabelBot: [],
   };
 
   Viewer = React.createRef();
@@ -119,71 +206,32 @@ class App extends Component {
   }
 
   drawSvg = () => {
-    const { boardWidth, boardLength, boardData } = this.state;
+    console.log("Redraw...........");
+    const { selectResult } = this.state;
     const xScale = d3.scaleLinear().domain([0, boardWidth]).range([0, width]);
     const yScale = d3.scaleLinear().domain([0, boardLength]).range([0, height]);
 
-    const composedTopSideData = boardData
-      .filter((item) => item.Side === "T")
-      .map((designator) => {
-        const data = PartData.find(
-          (partData) => partData.shapeName === designator.CompType
-        );
+    const composedTopSideData = getBoardData(BoardData, "T");
 
-        const xAxis = calculateX(designator, data);
-        const yAxis = calculateY(designator, data);
-        let w, l;
+    const composedBotSideData = getBoardData(BoardData, "B");
 
-        if (designator.O === "0" || designator.O === "180") {
-          w = data.width;
-        } else {
-          w = data.length;
-        }
-        if (designator.O === "0" || designator.O === "180") {
-          l = data.length;
-        } else {
-          l = data.width;
-        }
+    console.log("selectResult", selectResult);
 
-        return {
-          ref: designator.CompName,
-          xAxis,
-          yAxis,
-          w,
-          l,
-        };
-      });
+    const components = [];
+    selectResult.forEach((ref) => {
+      const component = BoardData.find((obj) => obj.CompName === ref.key);
+      if (component) {
+        components.push({ ...component, qty: ref.value });
+      }
+    });
 
-    const composedBotSideData = boardData
-      .filter((item) => item.Side === "B")
-      .map((designator) => {
-        const data = PartData.find(
-          (partData) => partData.shapeName === designator.CompType
-        );
+    console.log("components", components);
 
-        const xAxis = calculateX(designator, data);
-        const yAxis = calculateY(designator, data);
-        let w, l;
+    const compoedTopSideFailureData = getBoardData(components, "T");
+    const compoedBotSideFailureData = getBoardData(components, "B");
 
-        if (designator.O === "0" || designator.O === "180") {
-          w = data.width;
-        } else {
-          w = data.length;
-        }
-        if (designator.O === "0" || designator.O === "180") {
-          l = data.length;
-        } else {
-          l = data.width;
-        }
-
-        return {
-          ref: designator.CompName,
-          xAxis,
-          yAxis,
-          w,
-          l,
-        };
-      });
+    console.log("compoedTopSideFailureData", compoedTopSideFailureData);
+    console.log("compoedBotSideFailureData", compoedBotSideFailureData);
 
     const drawingData = composedTopSideData.map((d) => ({
       x: xScale(d.xAxis),
@@ -217,7 +265,48 @@ class App extends Component {
       size: `10px`,
     }));
 
-    this.setState({ drawingData, labelData, drawingDataBot, labelDataBot });
+    const defectDrawingTop = compoedTopSideFailureData.map((d) => ({
+      x: xScale(d.xAxis),
+      y: yScale(d.yAxis),
+      w: d.w * (width / boardWidth),
+      l: d.l * (height / boardLength),
+      ref: d.ref,
+    }));
+
+    const defectDrawingBot = compoedBotSideFailureData.map((d) => ({
+      x: xScale(d.xAxis),
+      y: yScale(d.yAxis),
+      w: d.w * (width / boardWidth),
+      l: d.l * (height / boardLength),
+      ref: d.ref,
+    }));
+
+    const defectLabelTop = compoedTopSideFailureData.map((d) => ({
+      x: xScale(d.xAxis),
+      y: yScale(d.yAxis),
+      stroke: defectTextColor(d.qty),
+      text: d.ref,
+      size: defectTextSize(d.qty),
+    }));
+
+    const defectLabelBot = compoedBotSideFailureData.map((d) => ({
+      x: xScale(d.xAxis),
+      y: yScale(d.yAxis),
+      stroke: defectTextColor(d.qty),
+      text: d.ref,
+      size: defectTextSize(d.qty),
+    }));
+
+    this.setState({
+      drawingData,
+      labelData,
+      drawingDataBot,
+      labelDataBot,
+      defectDrawingTop,
+      defectDrawingBot,
+      defectLabelTop,
+      defectLabelBot,
+    });
   };
 
   updateSearchParam = (e) => {
@@ -242,12 +331,18 @@ class App extends Component {
     console.log("errorAnalysis", errorAnalysis);
     console.log("station", station);
 
-    const test = errorAnalysis[station].ErorrDescriptions;
-    console.log("test", test);
-    const resultForStationAndBatch = errorAnalysis[
-      station
-    ].ErorrDescriptions.filter((obj) => obj.batchNo === batch);
+    let resultForStationAndBatch;
+
+    if (batch === "ALL") {
+      resultForStationAndBatch = errorAnalysis[station].ErorrDescriptions;
+    } else {
+      resultForStationAndBatch = errorAnalysis[
+        station
+      ].ErorrDescriptions.filter((obj) => obj.batchNo === batch);
+    }
+
     console.log("resultForStationAndBatch", resultForStationAndBatch);
+
     const rootCause = Array.from(
       new Set(resultForStationAndBatch.map((obj) => obj.description || ""))
     );
@@ -279,6 +374,10 @@ class App extends Component {
     });
   };
 
+  onbuttonClick = (e) => {
+    this.drawSvg();
+  };
+
   render() {
     const {
       drawingData,
@@ -288,6 +387,8 @@ class App extends Component {
       rootCause,
       batch,
       selectRootCause,
+      defectDrawingTop,
+      defectDrawingBot,
     } = this.state;
 
     return (
@@ -347,6 +448,10 @@ class App extends Component {
                   : null}
               </select>
             </label>
+
+            <Button onClick={(e) => this.onbuttonClick(e)}>
+              Display Locaitons
+            </Button>
           </SelectContainer>
           <hr />
           <UncontrolledReactSVGPanZoom
@@ -370,6 +475,19 @@ class App extends Component {
                   <title>{`${d.ref}`}</title>
                 </rect>
               ))}
+
+              {defectDrawingTop.map((d, i) => (
+                <rect
+                  key={i}
+                  x={d.x}
+                  y={height - d.y}
+                  width={d.w}
+                  height={d.l}
+                  strokeWidth={0.5}
+                  stroke="red"
+                  fill="red"
+                />
+              ))}
               <g>
                 {this.state.labelData.map((d, i) => (
                   <text
@@ -377,9 +495,24 @@ class App extends Component {
                     x={d.x}
                     y={height - d.y}
                     stroke={d.stroke}
+                    fill={d.stroke}
                     fontSize={d.size}
                   >
                     {d.text === searchParam ? d.text : ""}
+                  </text>
+                ))}
+              </g>
+              <g>
+                {this.state.defectLabelTop.map((d, i) => (
+                  <text
+                    key={i}
+                    x={d.x}
+                    y={height - d.y - 5}
+                    stroke={d.stroke}
+                    fill={d.stroke}
+                    fontSize={d.size}
+                  >
+                    {d.text}
                   </text>
                 ))}
               </g>
@@ -407,6 +540,18 @@ class App extends Component {
                   <title>{`${d.ref}`}</title>
                 </rect>
               ))}
+              {defectDrawingBot.map((d, i) => (
+                <rect
+                  key={i}
+                  x={d.x}
+                  y={height - d.y}
+                  width={d.w}
+                  height={d.l}
+                  strokeWidth={0.5}
+                  stroke="red"
+                  fill="red"
+                />
+              ))}
               <g>
                 {this.state.labelDataBot.map((d, i) => (
                   <text
@@ -414,9 +559,24 @@ class App extends Component {
                     x={d.x}
                     y={height - d.y}
                     stroke={d.stroke}
+                    fill={d.stroke}
                     fontSize={d.size}
                   >
                     {d.text === searchParam ? d.text : ""}
+                  </text>
+                ))}
+              </g>
+              <g>
+                {this.state.defectLabelBot.map((d, i) => (
+                  <text
+                    key={i}
+                    x={d.x}
+                    y={height - d.y - 5}
+                    stroke={d.stroke}
+                    fill={d.stroke}
+                    fontSize={d.size}
+                  >
+                    {d.text}
                   </text>
                 ))}
               </g>
