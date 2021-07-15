@@ -61,6 +61,27 @@ const calculateY = (designator, data) => {
   }
 };
 
+const parsingToQty = (resultForStationAndBatch, rc, batch) => {
+  if (!resultForStationAndBatch) {
+    return [];
+  }
+
+  console.log("resultForStationAndBatch", resultForStationAndBatch);
+
+  const filterReuslt = resultForStationAndBatch
+    .filter((obj) => obj.batchNo === batch && obj.description === rc)
+    .map((obj) => obj.reasons[0].item);
+
+  console.log("filterReuslt", filterReuslt);
+
+  const result = filterReuslt.reduce(function (prev, cur) {
+    prev[cur] = (prev[cur] || 0) + 1;
+    return prev;
+  }, {});
+
+  return result;
+};
+
 class App extends Component {
   state = {
     boardData: BoardData,
@@ -75,6 +96,11 @@ class App extends Component {
     errorAnalysis: [],
     batchs: [],
     station: "",
+    batch: "",
+    resultForStationAndBatch: [],
+    rootCause: [],
+    selectRootCause: "",
+    selectResult: [],
   };
 
   Viewer = React.createRef();
@@ -199,11 +225,70 @@ class App extends Component {
   };
 
   setStation = (e) => {
-    this.setState({ station: e.target.value });
+    this.setState({
+      station: e.target.value,
+      resultForStationAndBatch: [],
+      batch: "",
+      rootCause: [],
+      selectRootCause: "",
+      selectResult: [],
+    });
+  };
+
+  setBatch = (e) => {
+    const { errorAnalysis, station } = this.state;
+    const batch = e.target.value;
+
+    console.log("errorAnalysis", errorAnalysis);
+    console.log("station", station);
+
+    const test = errorAnalysis[station].ErorrDescriptions;
+    console.log("test", test);
+    const resultForStationAndBatch = errorAnalysis[
+      station
+    ].ErorrDescriptions.filter((obj) => obj.batchNo === batch);
+    console.log("resultForStationAndBatch", resultForStationAndBatch);
+    const rootCause = Array.from(
+      new Set(resultForStationAndBatch.map((obj) => obj.description || ""))
+    );
+    console.log("rootCause", rootCause);
+    this.setState({
+      batch,
+      resultForStationAndBatch,
+      rootCause,
+    });
+  };
+
+  setRootCause = (e) => {
+    const { resultForStationAndBatch, batch } = this.state;
+    const selectRootCause = e.target.value;
+    const result = parsingToQty(
+      resultForStationAndBatch,
+      selectRootCause,
+      batch
+    );
+    console.log("result", result);
+    let selectResult = [];
+    for (let [key, value] of Object.entries(result)) {
+      selectResult.push({ key, value });
+    }
+    console.log("selectResult", selectResult);
+    this.setState({
+      selectRootCause,
+      selectResult,
+    });
   };
 
   render() {
-    const { drawingData, searchParam, drawingDataBot, batchs } = this.state;
+    const {
+      drawingData,
+      searchParam,
+      drawingDataBot,
+      batchs,
+      rootCause,
+      batch,
+      selectRootCause,
+    } = this.state;
 
     return (
       <div>
@@ -231,7 +316,11 @@ class App extends Component {
 
             <label htmlFor="batch">
               BATCH
-              <select id="batch" onChange={(e) => this.setStation(e)}>
+              <select
+                id="batch"
+                onChange={(e) => this.setBatch(e)}
+                value={batch}
+              >
                 <option />
                 {batchs.map((batch) => (
                   <option value={batch} key={batch}>
@@ -243,13 +332,19 @@ class App extends Component {
 
             <label htmlFor="rootCause">
               ROOT CAUSE
-              <select id="rootCause" onChange={(e) => this.setStation(e)}>
+              <select
+                id="rootCause"
+                onChange={(e) => this.setRootCause(e)}
+                value={selectRootCause}
+              >
                 <option />
-                {STATIONS.map((station) => (
-                  <option value={station} key={station}>
-                    {station}
-                  </option>
-                ))}
+                {rootCause.length !== 0
+                  ? rootCause.map((rc) => (
+                      <option value={rc} key={rc}>
+                        {rc}
+                      </option>
+                    ))
+                  : null}
               </select>
             </label>
           </SelectContainer>
