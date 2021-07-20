@@ -46,6 +46,12 @@ export default function FileHandling() {
     const modelDetail =
       yieldRate.models.filter((model) => model.model === modelName)[0] || {};
 
+    console.log(yieldRate);
+    const aoi2 = yieldRate.AOI2s[0];
+    const aoi4 = yieldRate.AOI4s[0];
+    const ict = yieldRate.ICTs[0];
+    const xray = yieldRate.XRays[0];
+
     navigate(`/detail`, {
       state: {
         modelName,
@@ -54,6 +60,12 @@ export default function FileHandling() {
         endDate: outputDate(yieldRate.endDate),
         errorAnalysis: parsedErrorList[modelName],
         batchs: parsedErrorList.batchs,
+        recentYield: {
+          aoi2,
+          aoi4,
+          xray,
+          ict,
+        },
       },
     });
   };

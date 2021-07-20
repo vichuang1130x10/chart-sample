@@ -1,5 +1,13 @@
 import { getWeek, MBKEYWORD, BPNKEYWORD } from "../helperFunction";
 
+const sortMo = (a, b) => {
+  if (a < b) {
+    return 1;
+  } else {
+    return -1;
+  }
+};
+
 // parsing yieldRate json to specfic format for each station failure symptom
 export function parseForYieldRate(updatedJson) {
   // Date: Sun Jan 31 2021 00:00:00 GMT+0800 (Taipei Standard Time)
@@ -105,11 +113,41 @@ export function parseForYieldRate(updatedJson) {
   // const smt2PieData = { BPNSMT2Total, MBSMT2Total, OtherSMT2Total };
   // const fct2PieData = { BPNFCTTotal, MBFCTTotal, OtherFCTTotal };
   // const piesData = { smt2PieData, fct2PieData };
+
   const { startDate, endDate, models } = result;
+
+  const AOI2s = models[0]["AOI2"].mo.sort(sortMo).map((d) => ({
+    mo: d.MO,
+    total: d.Total,
+    yield: parseFloat(((d.Pass / d.Total) * 100).toFixed(1)),
+  }));
+
+  const AOI4s = models[0]["AOI4"].mo.sort(sortMo).map((d) => ({
+    mo: d.MO,
+    total: d.Total,
+    yield: parseFloat(((d.Pass / d.Total) * 100).toFixed(1)),
+  }));
+
+  const XRays = models[0]["X-Ray"].mo.sort(sortMo).map((d) => ({
+    mo: d.MO,
+    total: d.Total,
+    yield: parseFloat(((d.Pass / d.Total) * 100).toFixed(1)),
+  }));
+
+  const ICTs = models[0]["ICT"].mo.sort(sortMo).map((d) => ({
+    mo: d.MO,
+    total: d.Total,
+    yield: parseFloat(((d.Pass / d.Total) * 100).toFixed(1)),
+  }));
+
   return {
     startDate,
     endDate,
     models,
+    AOI2s,
+    AOI4s,
+    XRays,
+    ICTs,
   };
 }
 

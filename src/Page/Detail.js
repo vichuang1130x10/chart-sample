@@ -30,6 +30,7 @@ class Detail extends Component {
     sortFailure: [],
     topThree: [],
     sevenDaysFailure: [],
+    recentYield: {},
   };
 
   componentDidMount() {
@@ -40,7 +41,9 @@ class Detail extends Component {
       modelDetail,
       errorAnalysis,
       batchs,
+      recentYield,
     } = this.props.location.state;
+
     this.setState({
       tableData: this.props.location.state,
       startDate,
@@ -50,6 +53,7 @@ class Detail extends Component {
       trendData: modelDetail[this.state.station].mo,
       errorAnalysis,
       batchs,
+      recentYield,
       sortFailure: this.parsingToQty(errorAnalysis, this.state.station),
       sevenDaysFailure: this.parsingToSevenDayQty(
         errorAnalysis,
@@ -261,6 +265,7 @@ class Detail extends Component {
       errorAnalysis,
       sortFailure,
       sevenDaysFailure,
+      recentYield,
     } = this.state;
 
     return startDate.length ? (
@@ -317,19 +322,19 @@ class Detail extends Component {
                       <tbody>
                         <tr>
                           <th>AOI2</th>
-                          <td>98.7%</td>
+                          <td>{recentYield.aoi2.yield}%</td>
                         </tr>
                         <tr>
                           <th>AOI4</th>
-                          <td>96%</td>
+                          <td>{recentYield.aoi4.yield}%</td>
                         </tr>
                         <tr>
                           <th>X-Ray</th>
-                          <td>96.7%</td>
+                          <td>{recentYield.xray.yield}%</td>
                         </tr>
                         <tr>
                           <th>ICT</th>
-                          <td>94%</td>
+                          <td>{recentYield.ict.yield}%</td>
                         </tr>
                       </tbody>
                     </Table>
