@@ -1,12 +1,20 @@
 import React, { Component } from "react";
 import HeaderWithTable from "../Component/HeaderWithTable";
-import { Container, Row, Col } from "react-bootstrap";
+import { Container, Row, Col, Card, Table } from "react-bootstrap";
+import styled from "styled-components";
 import BarChart from "../Visualizations/BarChart";
 import DefectTable from "../Component/DefectTable";
 import { getSevenDayBoundary } from "../Utils/helperFunction";
 import Plato from "../Visualizations/Plato";
 import Button from "../Component/Button";
 import { navigate } from "@reach/router";
+
+const DisplayRow1 = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+`;
 
 class Detail extends Component {
   state = {
@@ -261,22 +269,74 @@ class Detail extends Component {
         <Container>
           <h4 className="center-text">LAST 20 WORKING-ORDER TREND</h4>
           <Row>
-            <label htmlFor="station">
-              Trend Chart:
-              <select
-                id="station"
-                value={station}
-                onChange={(e) => this.udpateStation(e.target.value)}
-                onBlur={(e) => this.udpateStation(e.target.value)}
-              >
-                {["AOI2", "AOI4", "X-Ray", "ICT"].map((station) => (
-                  <option value={station} key={station}>
-                    {station}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <BarChart data={trendData} station={station} />
+            <DisplayRow1>
+              <div>
+                <label htmlFor="station">
+                  Trend Chart:
+                  <select
+                    id="station"
+                    value={station}
+                    onChange={(e) => this.udpateStation(e.target.value)}
+                    onBlur={(e) => this.udpateStation(e.target.value)}
+                  >
+                    {["AOI2", "AOI4", "X-Ray", "ICT"].map((station) => (
+                      <option value={station} key={station}>
+                        {station}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <BarChart data={trendData} station={station} />
+              </div>
+              <div>
+                <Card
+                  style={{
+                    width: "300px",
+                    height: "250px",
+                    marginLeft: "40px",
+                    marginBottom: "90px",
+                  }}
+                >
+                  <Card.Body>
+                    <Card.Title className="font-weight-bold">
+                      Recent Yield Rate
+                    </Card.Title>
+                    <Table
+                      striped
+                      bordered
+                      hover
+                      size="sm"
+                      style={{ fontSize: "16px" }}
+                    >
+                      <thead>
+                        <tr>
+                          <th>Station</th>
+                          <th>Yield</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <th>AOI2</th>
+                          <td>98.7%</td>
+                        </tr>
+                        <tr>
+                          <th>AOI4</th>
+                          <td>96%</td>
+                        </tr>
+                        <tr>
+                          <th>X-Ray</th>
+                          <td>96.7%</td>
+                        </tr>
+                        <tr>
+                          <th>ICT</th>
+                          <td>94%</td>
+                        </tr>
+                      </tbody>
+                    </Table>
+                  </Card.Body>
+                </Card>
+              </div>
+            </DisplayRow1>
           </Row>
           <Row style={{ margin: "20px" }}>
             <Button onClick={() => this.gotoDefectMapping()}>
