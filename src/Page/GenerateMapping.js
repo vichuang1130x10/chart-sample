@@ -453,6 +453,7 @@ class App extends Component {
               Display Locaitons
             </Button>
           </SelectContainer>
+          <p>{`Occurrence by text colour: Black = 1, Orange = > 1 and < 5, Red = > 5 `}</p>
           <hr />
           <UncontrolledReactSVGPanZoom
             ref={this.Viewer}
@@ -486,7 +487,9 @@ class App extends Component {
                   strokeWidth={0.5}
                   stroke="red"
                   fill="red"
-                />
+                >
+                  <title>{`${d.ref}`}</title>
+                </rect>
               ))}
               <g>
                 {this.state.labelData.map((d, i) => (
@@ -550,7 +553,9 @@ class App extends Component {
                   strokeWidth={0.5}
                   stroke="red"
                   fill="red"
-                />
+                >
+                  <title>{`${d.ref}`}</title>
+                </rect>
               ))}
               <g>
                 {this.state.labelDataBot.map((d, i) => (
