@@ -8,6 +8,7 @@ import Detail from "./Page/Detail";
 import Dashboard from "./Page/Dashboard";
 import DefectMapping from "./Page/DefectMapping";
 import GenerateMapping from "./Page/GenerateMapping";
+import FailureRank from "./Page/FailureRank";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Dashboard path="/dashboard" />
         <DefectMapping path="/defect-mapping" />
         <GenerateMapping path="/generat-mapping" />
+        <FailureRank path="/rank" />
       </Router>
     </div>
   );

@@ -8,6 +8,7 @@ import { getSevenDayBoundary } from "../Utils/helperFunction";
 import Plato from "../Visualizations/Plato";
 import Button from "../Component/Button";
 import { navigate } from "@reach/router";
+import boardFile from "../board-data/boarddatas.json";
 
 const DisplayRow1 = styled.div`
   display: flex;
@@ -31,6 +32,10 @@ class Detail extends Component {
     topThree: [],
     sevenDaysFailure: [],
     recentYield: {},
+    defectByCad: [],
+    defectByPn: [],
+    horizontal: 0,
+    vertical: 0,
   };
 
   componentDidMount() {
@@ -44,6 +49,9 @@ class Detail extends Component {
       recentYield,
     } = this.props.location.state;
 
+    const { defectByCad, defectByPn, vertical, horizontal } =
+      this.cadTypeRank(errorAnalysis);
+
     this.setState({
       tableData: this.props.location.state,
       startDate,
@@ -54,6 +62,10 @@ class Detail extends Component {
       errorAnalysis,
       batchs,
       recentYield,
+      defectByCad,
+      defectByPn,
+      vertical,
+      horizontal,
       sortFailure: this.parsingToQty(errorAnalysis, this.state.station),
       sevenDaysFailure: this.parsingToSevenDayQty(
         errorAnalysis,
@@ -72,6 +84,99 @@ class Detail extends Component {
         str
       ),
     });
+  };
+
+  //errorAnalysis:
+  // AOI2: {ErorrDescriptions: Array(69)}
+  // AOI4: {ErorrDescriptions: Array(663)}
+  // ICT: {ErorrDescriptions: Array(887)}
+  // X-Ray: {ErorrDescriptions: Array(637)}
+
+  cadTypeRank = (e) => {
+    const allRepairData = e["AOI2"].ErorrDescriptions.concat(
+      e["AOI4"].ErorrDescriptions,
+      e["ICT"].ErorrDescriptions,
+      e["X-Ray"].ErorrDescriptions
+    );
+    console.log(allRepairData);
+
+    const allDefects = {};
+    allRepairData.forEach((defect) => {
+      if (
+        allDefects[defect.cadLoc] === null ||
+        allDefects[defect.cadLoc] === undefined
+      ) {
+        allDefects[defect.cadLoc] = 1;
+      } else {
+        allDefects[defect.cadLoc] += 1;
+      }
+    });
+
+    let sortable = [];
+    for (let defect in allDefects) {
+      if (defect !== "") sortable.push([defect, allDefects[defect]]);
+    }
+
+    sortable.sort(function (a, b) {
+      return b[1] - a[1];
+    });
+
+    console.log(sortable);
+
+    const allDefectsByPn = {};
+    allRepairData.forEach((defect) => {
+      if (
+        allDefectsByPn[defect.pn] === null ||
+        allDefectsByPn[defect.pn] === undefined
+      ) {
+        allDefectsByPn[defect.pn] = 1;
+      } else {
+        allDefectsByPn[defect.pn] += 1;
+      }
+    });
+
+    let sortablePn = [];
+    for (let defect in allDefectsByPn) {
+      if (defect !== "") sortablePn.push([defect, allDefectsByPn[defect]]);
+    }
+
+    sortablePn.sort(function (a, b) {
+      return b[1] - a[1];
+    });
+
+    console.log(sortablePn);
+    //description: "Tombstone"
+    const tombs = allRepairData
+      .filter((obj) => obj.description === "Tombstone")
+      .map((t) => boardFile.find((ele) => ele.CompName === t.item));
+
+    const orientation = {};
+
+    // console.log(tombs);
+
+    tombs.forEach((defect) => {
+      if (defect) {
+        if (
+          orientation[defect.O] === null ||
+          orientation[defect.O] === undefined
+        ) {
+          orientation[defect.O] = 1;
+        } else {
+          orientation[defect.O] += 1;
+        }
+      }
+    });
+
+    console.log(orientation);
+    const vertical = orientation["90"] + orientation["-90"];
+    const horizontal = orientation["0"] + orientation["180"];
+
+    return {
+      defectByCad: sortable,
+      defectByPn: sortablePn,
+      vertical,
+      horizontal,
+    };
   };
 
   parsingToSevenDayQty = (e, str) => {
@@ -256,6 +361,13 @@ class Detail extends Component {
     });
   };
 
+  gotorank = () => {
+    const { defectByCad, defectByPn, vertical, horizontal } = this.state;
+    navigate(`/rank`, {
+      state: { defectByCad, defectByPn, vertical, horizontal },
+    });
+  };
+
   render() {
     const {
       tableData,
@@ -346,6 +458,10 @@ class Detail extends Component {
           <Row style={{ margin: "20px" }}>
             <Button onClick={() => this.gotoDefectMapping()}>
               Defect Mapping Page
+            </Button>
+
+            <Button onClick={() => this.gotorank()}>
+              Failure Rank By Type/PN
             </Button>
           </Row>
           <br />

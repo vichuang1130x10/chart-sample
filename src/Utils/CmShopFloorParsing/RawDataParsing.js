@@ -1,4 +1,6 @@
 import { getWeek, MBKEYWORD, BPNKEYWORD } from "../helperFunction";
+import bom from "../../board-data/bomStringfy.json";
+import cad from "../../board-data/boarddatas.json";
 
 const sortMo = (a, b) => {
   if (a < b) {
@@ -319,10 +321,28 @@ export function parsingErrorList(errorList) {
 
   errorList.forEach((obj) => {
     const item = replaceDashToUnderline(obj["LOCATION"]);
+
     const batchNo = obj["FAIL_SN"].split("-")[0] || "";
+
+    let cadLoc = "";
+    let pn = "";
 
     if (obj["MODEL_NAME"] === "IPU-M MB MK2" && !n.batchs.includes(batchNo)) {
       n.batchs.push(batchNo);
+    }
+
+    if (obj["MODEL_NAME"] === "IPU-M MB MK2") {
+      const locs = cad.filter((obj) => obj.CompName === item);
+      if (locs.length) {
+        cadLoc = locs[0].CompType;
+      }
+    }
+
+    if (obj["MODEL_NAME"] === "IPU-M MB MK2") {
+      const pns = bom.filter((obj) => obj.ref === item);
+      if (pns.length) {
+        pn = pns[0].partNumber;
+      }
     }
 
     obj["Type"] = getType(obj["FAIL_STATION"]);
@@ -352,6 +372,9 @@ export function parsingErrorList(errorList) {
               },
             ],
             date: obj["REPAIR_TIME"],
+            item,
+            cadLoc,
+            pn,
           },
         ];
       }
@@ -374,6 +397,9 @@ export function parsingErrorList(errorList) {
             },
           ],
           date: obj["REPAIR_TIME"],
+          item,
+          cadLoc,
+          pn,
         });
       }
     }
