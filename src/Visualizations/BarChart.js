@@ -5,7 +5,7 @@ const height = 400;
 const margin = { top: 20, right: 5, bottom: 50, left: 35 };
 
 const sortMo = (a, b) => {
-  if (a > b) {
+  if (a.MO > b.MO) {
     return 1;
   } else {
     return -1;
@@ -53,7 +53,7 @@ class BarChart extends Component {
     const [yMin, yMax] = d3.extent(trimData, (d) => d.total);
     const yScaleRight = d3
       .scaleLinear()
-      .domain([Math.min(10, yMin), yMax + 400])
+      .domain([Math.min(10, yMin), yMax + 50])
       .range([height - margin.bottom, margin.top]);
 
     const trend = d3
