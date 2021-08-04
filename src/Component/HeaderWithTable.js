@@ -63,7 +63,7 @@ export default function HeaderWithTable(props) {
       <NavHeader>
         <NavTitle>
           <Link to="/" style={{ color: "#000" }}>
-            <h3>DUMMY DATA DEMO</h3>
+          <h3>YIELD DATA DEMO</h3>
           </Link>
         </NavTitle>
         <NavSubTitle>
